@@ -15,10 +15,11 @@ function AppointmentForm() {
 
   const [formData, setFormData] = useState({
     registrationNumber: "",
-    serviceId: "",
+    serviceId: "", // changed back to serviceId
     garageId: "",
     appointmentDate: "",
     appointmentTime: "",
+    canWait: "",  // New field for Yes/No
   });
 
   useEffect(() => {
@@ -107,7 +108,7 @@ function AppointmentForm() {
         setModalMessage("✅ Appointment booked successfully!");
       } else {
         const errorData = await res.json();
-        console.log(errorData)
+        console.log(errorData);
         setModalMessage(
           `❌ Booking failed: ${errorData.message || "Unknown error"}`
         );
@@ -146,30 +147,20 @@ function AppointmentForm() {
       <div className="content-area">
         <div className="container mt-4">
           <h2>Book Appointment</h2>
-          <form
-            onSubmit={handleSubmit}
-            className="card p-4 shadow-sm rounded-4"
-          >
+          <form onSubmit={handleSubmit} className="card p-4 shadow-sm rounded-4">
+            {/* Name */}
             <div className="mb-3">
               <label className="form-label">Name</label>
-              <input
-                type="text"
-                className="form-control"
-                value={user.name}
-                readOnly
-              />
+              <input type="text" className="form-control" value={user.name} readOnly />
             </div>
 
+            {/* Email */}
             <div className="mb-3">
               <label className="form-label">Email</label>
-              <input
-                type="email"
-                className="form-control"
-                value={user.email}
-                readOnly
-              />
+              <input type="email" className="form-control" value={user.email} readOnly />
             </div>
 
+            {/* Vehicle */}
             <div className="mb-3">
               <label className="form-label">Vehicle Registration Number</label>
               <select
@@ -181,16 +172,14 @@ function AppointmentForm() {
               >
                 <option value="">Select Vehicle</option>
                 {vehicles.map((vehicle) => (
-                  <option
-                    key={vehicle.vehicleId}
-                    value={vehicle.registrationNumber}
-                  >
+                  <option key={vehicle.vehicleId} value={vehicle.registrationNumber}>
                     {vehicle.registrationNumber}
                   </option>
                 ))}
               </select>
             </div>
 
+            {/* Service */}
             <div className="mb-3">
               <label className="form-label">Service Needed</label>
               <select
@@ -209,6 +198,7 @@ function AppointmentForm() {
               </select>
             </div>
 
+            {/* Garage */}
             <div className="mb-3">
               <label className="form-label">Garage</label>
               <select
@@ -227,6 +217,7 @@ function AppointmentForm() {
               </select>
             </div>
 
+            {/* Date */}
             <div className="mb-3">
               <label className="form-label">Date</label>
               <input
@@ -239,6 +230,7 @@ function AppointmentForm() {
               />
             </div>
 
+            {/* Time */}
             <div className="mb-3">
               <label className="form-label">Time</label>
               <select
@@ -254,6 +246,22 @@ function AppointmentForm() {
                     {slot.label}
                   </option>
                 ))}
+              </select>
+            </div>
+
+            {/* Can Wait */}
+            <div className="mb-3">
+              <label className="form-label">Can you wait if a mechanic is not immediately available?</label>
+              <select
+                className="form-select"
+                name="canWait"
+                value={formData.canWait}
+                onChange={handleChange}
+                required
+              >
+                <option value="">Select Yes or No</option>
+                <option value="yes">Yes</option>
+                <option value="no">No</option>
               </select>
             </div>
 

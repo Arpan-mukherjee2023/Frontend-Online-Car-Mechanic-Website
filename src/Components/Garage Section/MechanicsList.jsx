@@ -4,7 +4,6 @@ const MechanicsList = ({ garageId }) => {
   const [mechanics, setMechanics] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [updatingId, setUpdatingId] = useState(null);
 
   useEffect(() => {
     if (!garageId) return;
@@ -18,7 +17,6 @@ const MechanicsList = ({ garageId }) => {
         return res.json();
       })
       .then((data) => {
-        // Ensure the mechanics data uses `isAvailable` consistently
         setMechanics(data);
         setLoading(false);
       })
@@ -27,33 +25,6 @@ const MechanicsList = ({ garageId }) => {
         setLoading(false);
       });
   }, [garageId]);
-
-  const toggleAvailability = (mechanicId, currentAvailability) => {
-    setUpdatingId(mechanicId);
-
-    const newAvailability = !currentAvailability;
-
-    fetch(`http://localhost:8080/api/mechanics/${mechanicId}/availability/${newAvailability}`, {
-      method: "PUT",
-    })
-      .then((res) => {
-        if (!res.ok) throw new Error("Failed to update availability");
-        return res.json();
-      })
-      .then((updatedMechanic) => {
-        setMechanics((prev) =>
-          prev.map((m) =>
-            m.id === mechanicId ? { ...m, isAvailable: updatedMechanic.isAvailable } : m
-          )
-        );
-      })
-      .catch(() => {
-        alert("Failed to update availability. Please try again.");
-      })
-      .finally(() => {
-        setUpdatingId(null);
-      });
-  };
 
   if (loading)
     return (
@@ -85,36 +56,14 @@ const MechanicsList = ({ garageId }) => {
                 <small className="text-muted d-block">📞 {phoneNumber}</small>
                 <small className="text-muted d-block">🛠️ {specialization}</small>
               </div>
-              <div className="d-flex align-items-center mt-3 mt-md-0">
-                <span
-                  className={`badge ${
-                    isAvailable ? "bg-success" : "bg-secondary"
-                  } me-3`}
-                  style={{ fontSize: "0.85rem", minWidth: "80px", textAlign: "center" }}
-                >
-                  {isAvailable ? "Available" : "Unavailable"}
-                </span>
-                <button
-                  className={`btn btn-sm ${
-                    isAvailable ? "btn-outline-danger" : "btn-outline-success"
-                  }`}
-                  disabled={updatingId === id}
-                  onClick={() => toggleAvailability(id, isAvailable)}
-                  aria-label={`Set ${name} as ${isAvailable ? "unavailable" : "available"}`}
-                >
-                  {updatingId === id ? (
-                    <span
-                      className="spinner-border spinner-border-sm"
-                      role="status"
-                      aria-hidden="true"
-                    ></span>
-                  ) : isAvailable ? (
-                    "Make Unavailable"
-                  ) : (
-                    "Make Available"
-                  )}
-                </button>
-              </div>
+              <span
+                className={`badge ${
+                  isAvailable ? "bg-success" : "bg-secondary"
+                } mt-3 mt-md-0`}
+                style={{ fontSize: "0.85rem", minWidth: "80px", textAlign: "center" }}
+              >
+                {isAvailable ? "Available" : "Unavailable"}
+              </span>
             </li>
           ))}
         </ul>
