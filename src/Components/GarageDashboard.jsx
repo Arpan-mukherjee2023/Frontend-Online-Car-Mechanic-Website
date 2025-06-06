@@ -1,5 +1,5 @@
 import React from "react";
-import SideNavBar from "./Dashboard Sections/SideNavBar";
+import GarageNavBar from "./Garage Section/GarageNavBar";
 import UpcomingAppointments from "./Garage Section/UpcomingAppointments";
 import MechanicsList from "./Garage Section/MechanicsList";
 
@@ -9,7 +9,7 @@ function GarageDashboard() {
   const garageName = garage.name;
   return (
     <div className="dashboard-container">
-      <SideNavBar />
+      <GarageNavBar />
 
       <div className="content-area mt-2">
         <div className="d-flex flex-column" style={{ height: "100%" }}>

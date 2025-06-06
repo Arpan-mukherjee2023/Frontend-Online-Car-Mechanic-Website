@@ -104,10 +104,13 @@ function AppointmentForm() {
         body: JSON.stringify(payload),
       });
 
+      const data = await res.text();
+      console.log(data);
+
       if (res.ok) {
-        setModalMessage("✅ Appointment booked successfully!");
+        setModalMessage(data);
       } else {
-        const errorData = await res.json();
+        const errorData = await res.text();
         console.log(errorData);
         setModalMessage(
           `❌ Booking failed: ${errorData.message || "Unknown error"}`

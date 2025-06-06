@@ -29,6 +29,9 @@ import FavouriteGaragesTable from "./Components/User Settings Page/FavouriteGara
 import ServiceHistoryTable from "./Components/User Settings Page/ServicehistoryTable.jsx";
 import AppointmentFrom from "./Components/Dashboard Sections/AppointmentForm.jsx";
 import GarageDashboard from "./Components/GarageDashboard.jsx"
+import GarageAppointment from "./Components/Garage Section/GarageAppointment.jsx"
+import GarageProduct from "./Components/Garage Section/GarageProduct.jsx";
+import GarageSettings from "./Components/Garage Section/GarageSettings.jsx";
 
 
 
@@ -50,7 +53,10 @@ function AppWrapper() {
     "/user/settings/favourites/garages",
     "user/settings/service-history/",
     "/user/book-appointments",
-    "/garage/dashboard"
+    "/garage/dashboard",
+    "/garage/appointment",
+    "/garage/product",
+    "/garage/settings"
   ];
 
   const shouldUseLayout = !noLayoutRoutes.some((route) =>
@@ -90,7 +96,13 @@ function AppWrapper() {
             <Route path="/user/settings/favourites/garages" element={<FavouriteGaragesTable />} />
             <Route path="/user/settings/service-history" element={<ServiceHistoryTable />} />
             <Route path="/user/book-appointments" element={<AppointmentFrom />} />
+
+
+            {/* GARAGE SECTION LINKS  */}
             <Route path="/garage/dashboard" element={<GarageDashboard />} />
+            <Route path="/garage/appointment" element={<GarageAppointment />} />
+            <Route path="/garage/product" element={<GarageProduct />} />
+            <Route path="/garage/settings" element={<GarageSettings />} />
 
           </Routes>
         )}
