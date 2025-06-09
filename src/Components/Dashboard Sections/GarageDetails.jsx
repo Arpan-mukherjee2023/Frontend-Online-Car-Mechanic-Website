@@ -130,7 +130,8 @@ function GarageDetails() {
 
               {/* Buttons */}
               <div className="d-flex flex-wrap gap-2 mb-3">
-                <button className="btn btn-outline-primary btn-sm">Book</button>
+                <button className="btn btn-outline-primary btn-sm"
+                onClick={() => navigate('/user/book-appointments')}>Book</button>
                 <button
                   className="btn btn-outline-success btn-sm"
                   onClick={() => handleReviewClick(garage.garageId)}

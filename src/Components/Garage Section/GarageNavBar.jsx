@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useLocation, Link } from "react-router-dom";
+import logo from "../../Media/logo-automobile.png"
 
 function GarageNavBar() {
 
@@ -27,7 +28,7 @@ function GarageNavBar() {
         href="/"
         className="d-flex align-items-center mb-3 mb-md-0 me-md-auto link-body-emphasis text-decoration-none"
       >
-        <span className="fs-4 text-dark">SideBar</span>
+        <span className="fs-4 text-dark"><img src={logo} width="50" height="50"/> WRENCHIT</span>
       </a>
       <hr className="text-white" />
       <ul className="nav nav-pills flex-column mb-auto">
