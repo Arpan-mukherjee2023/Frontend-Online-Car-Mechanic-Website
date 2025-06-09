@@ -251,7 +251,7 @@ function ProductPage() {
         const { id: razorpayOrderId, amount, currency } = await res.json();
 
         const options = {
-          key: "rzp_test_ysjNPJ8UuaZa78", // replace with your Razorpay key
+          key: "YOUR 🔐 KEY", // replace with your Razorpay key
           amount,
           currency,
           name: "Garage Store",
