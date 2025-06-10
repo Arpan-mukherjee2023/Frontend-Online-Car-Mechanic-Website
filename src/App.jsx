@@ -14,7 +14,7 @@ import Login from "./Components/Login";
 import Signup from "./Components/Signup";
 import UserDashboard from "./Components/UserDashboard";
 import UserProvider from "./Context/UserProvider.jsx";
-import Layout from "./Components/Layout"; 
+import Layout from "./Components/Layout";
 import ProfilePage from "./Components/Dashboard Sections/ProfilePage.jsx";
 import GaragePage from "./Components/Dashboard Sections/GaragePage.jsx";
 import AppointmentPage from "./Components/Dashboard Sections/AppointmentPage.jsx";
@@ -28,12 +28,12 @@ import FavouriteMechanicsTable from "./Components/User Settings Page/FavouriteMe
 import FavouriteGaragesTable from "./Components/User Settings Page/FavouriteGaragesTable.jsx";
 import ServiceHistoryTable from "./Components/User Settings Page/ServicehistoryTable.jsx";
 import AppointmentFrom from "./Components/Dashboard Sections/AppointmentForm.jsx";
-import GarageDashboard from "./Components/GarageDashboard.jsx"
-import GarageAppointment from "./Components/Garage Section/GarageAppointment.jsx"
+import GarageDashboard from "./Components/GarageDashboard.jsx";
+import GarageAppointment from "./Components/Garage Section/GarageAppointment.jsx";
 import GarageProduct from "./Components/Garage Section/GarageProduct.jsx";
 import GarageSettings from "./Components/Garage Section/GarageSettings.jsx";
-
-
+import GarageOrder from "./Components/Garage Section/GarageOrder.jsx";
+import ChatBotModal from "./Components/ChatbotModal.jsx";
 
 function AppWrapper() {
   const location = useLocation();
@@ -56,7 +56,8 @@ function AppWrapper() {
     "/garage/dashboard",
     "/garage/appointment",
     "/garage/product",
-    "/garage/settings"
+    "/garage/settings",
+    "/garage/order",
   ];
 
   const shouldUseLayout = !noLayoutRoutes.some((route) =>
@@ -78,33 +79,60 @@ function AppWrapper() {
             </Routes>
           </Layout>
         ) : (
-          <Routes>
-            <Route path="/user/dashboard" element={<UserDashboard />} />
-            <Route path="/user/myProfile" element={<ProfilePage />} />
-            <Route path="/user/garage" element={<GaragePage />} />
-            <Route path="/user/appointment" element={<AppointmentPage />} />
-            <Route path="/user/product" element={<ProductPage />} />
-            <Route path="/user/settings" element={<SettingsPage />} />
-            <Route path="/user/garage/:garage_id" element={<GarageDetails />} />
-            <Route
-              path="/user/garage/:garage_id/review"
-              element={<GarageReviewForm />}
-            />
-            <Route path="/user/settings/vehicles/add" element={<AddVehicleForm />} />
-            <Route path="/user/settings/vehicles/edit" element={<EditVehicles />} />
-            <Route path="/user/settings/favourites/mechanics" element={<FavouriteMechanicsTable />} />
-            <Route path="/user/settings/favourites/garages" element={<FavouriteGaragesTable />} />
-            <Route path="/user/settings/service-history" element={<ServiceHistoryTable />} />
-            <Route path="/user/book-appointments" element={<AppointmentFrom />} />
+          <>
+            <Routes>
+              <Route path="/user/dashboard" element={<UserDashboard />} />
+              <Route path="/user/myProfile" element={<ProfilePage />} />
+              <Route path="/user/garage" element={<GaragePage />} />
+              <Route path="/user/appointment" element={<AppointmentPage />} />
+              <Route path="/user/product" element={<ProductPage />} />
+              <Route path="/user/settings" element={<SettingsPage />} />
+              <Route
+                path="/user/garage/:garage_id"
+                element={<GarageDetails />}
+              />
+              <Route
+                path="/user/garage/:garage_id/review"
+                element={<GarageReviewForm />}
+              />
+              <Route
+                path="/user/settings/vehicles/add"
+                element={<AddVehicleForm />}
+              />
+              <Route
+                path="/user/settings/vehicles/edit"
+                element={<EditVehicles />}
+              />
+              <Route
+                path="/user/settings/favourites/mechanics"
+                element={<FavouriteMechanicsTable />}
+              />
+              <Route
+                path="/user/settings/favourites/garages"
+                element={<FavouriteGaragesTable />}
+              />
+              <Route
+                path="/user/settings/service-history"
+                element={<ServiceHistoryTable />}
+              />
+              <Route
+                path="/user/book-appointments"
+                element={<AppointmentFrom />}
+              />
 
+              {/* GARAGE SECTION LINKS  */}
+              <Route path="/garage/dashboard" element={<GarageDashboard />} />
+              <Route
+                path="/garage/appointment"
+                element={<GarageAppointment />}
+              />
+              <Route path="/garage/product" element={<GarageProduct />} />
+              <Route path="/garage/order" element={<GarageOrder />} />
 
-            {/* GARAGE SECTION LINKS  */}
-            <Route path="/garage/dashboard" element={<GarageDashboard />} />
-            <Route path="/garage/appointment" element={<GarageAppointment />} />
-            <Route path="/garage/product" element={<GarageProduct />} />
-            <Route path="/garage/settings" element={<GarageSettings />} />
-
-          </Routes>
+              <Route path="/garage/settings" element={<GarageSettings />} />
+            </Routes>
+            <ChatBotModal />
+          </>
         )}
       </UserProvider>
     </>

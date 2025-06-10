@@ -70,6 +70,19 @@ function GarageNavBar() {
             Products
           </Link>
         </li>
+
+        <li>
+          <Link
+            to="/garage/order"
+            className={`nav-link ${
+              location.pathname === "/garage/order" ? "active" : ""
+            }`}
+            onClick={() => handleSectionClick("Orders")}
+            style={{ color: "#black" }} // Light color for default links
+          >
+            Orders
+          </Link>
+        </li>
         <li>
           <Link
             to="/garage/settings"
