@@ -1,5 +1,15 @@
 import React, { useEffect, useState } from "react";
 import SideNavBar from "../Dashboard Sections/SideNavBar";
+import { Container, Row, Col, Form, Button, Modal } from "react-bootstrap";
+import {
+  User,
+  Mail,
+  Car,
+  Wrench,
+  Calendar,
+  Clock,
+  CheckCircle,
+} from "lucide-react";
 
 function AppointmentForm() {
   const user = JSON.parse(localStorage.getItem("userData"));
@@ -8,18 +18,18 @@ function AppointmentForm() {
   const [vehicles, setVehicles] = useState([]);
   const [services, setServices] = useState([]);
   const [garages, setGarages] = useState([]);
-  const [modalMessage, setModalMessage] = useState("");
   const [showModal, setShowModal] = useState(false);
-  const [lat, setLat] = useState();
-  const [lng, setLng] = useState();
+  const [modalMessage, setModalMessage] = useState("");
+  const [lat, setLat] = useState(null);
+  const [lng, setLng] = useState(null);
 
   const [formData, setFormData] = useState({
     registrationNumber: "",
-    serviceId: "", // changed back to serviceId
+    serviceId: "",
     garageId: "",
     appointmentDate: "",
     appointmentTime: "",
-    canWait: "",  // New field for Yes/No
+    canWait: "",
   });
 
   useEffect(() => {
@@ -54,15 +64,12 @@ function AppointmentForm() {
           setLat(currentLat);
           setLng(currentLng);
 
-          console.log("Latitude:", currentLat, "Longitude:", currentLng);
-
           try {
             const garageRes = await fetch(
               `http://localhost:8080/api/user/garages/nearby-service?lat=${currentLat}&lng=${currentLng}&serviceId=${serviceId}`
             );
             const garageData = await garageRes.json();
             setGarages(garageData);
-            console.log(garageData);
           } catch (error) {
             console.error("Error fetching garages:", error);
           }
@@ -72,15 +79,13 @@ function AppointmentForm() {
         }
       );
     } else {
-      console.error("Geolocation is not supported by this browser.");
+      console.error("Geolocation not supported.");
     }
   };
 
   const handleChange = (e) => {
-    setFormData((prev) => ({
-      ...prev,
-      [e.target.name]: e.target.value,
-    }));
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleSubmit = async (e) => {
@@ -93,28 +98,28 @@ function AppointmentForm() {
       userEmail: user.email,
     };
 
-    console.log(payload);
-
     try {
       const res = await fetch("http://localhost:8080/api/appointments/book", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
 
       const data = await res.text();
-      console.log(data);
 
       if (res.ok) {
         setModalMessage(data);
+        setFormData({
+          registrationNumber: "",
+          serviceId: "",
+          garageId: "",
+          appointmentDate: "",
+          appointmentTime: "",
+          canWait: "",
+        });
+        setGarages([]);
       } else {
-        const errorData = await res.text();
-        console.log(errorData);
-        setModalMessage(
-          `❌ Booking failed: ${errorData.message || "Unknown error"}`
-        );
+        setModalMessage(`❌ Booking failed: ${data || "Unknown error"}`);
       }
     } catch (error) {
       console.error("Error booking appointment:", error);
@@ -128,9 +133,7 @@ function AppointmentForm() {
     const slots = [];
     for (let hour = startHour; hour < endHour; hour++) {
       const start = `${hour.toString().padStart(2, "0")}:00`;
-      const end = `${(hour + 1).toString().padStart(2, "0")}:00`;
-
-      const label = `${formatHour(hour)} - ${formatHour(hour + 1)}`;
+      const label = formatHour(hour);
       slots.push({ value: start, label });
     }
     return slots;
@@ -142,32 +145,40 @@ function AppointmentForm() {
     return `${formattedHour.toString().padStart(2, "0")}:00 ${period}`;
   };
 
-  const timeSlots = generateTimeSlots(9, 21); // from 9AM to 9PM
+  const timeSlots = generateTimeSlots(9, 21); // 9AM to 9PM
 
   return (
-    <div className="dashboard-container">
+    <div className="dashboard-container d-flex">
       <SideNavBar />
       <div className="content-area">
-        <div className="container mt-4">
-          <h2>Book Appointment</h2>
-          <form onSubmit={handleSubmit} className="card p-4 shadow-sm rounded-4">
+        <Container className="p-4">
+          <h2 className="mb-4">Book Appointment</h2>
+          <Form onSubmit={handleSubmit} className="shadow p-4 rounded bg-light">
             {/* Name */}
-            <div className="mb-3">
-              <label className="form-label">Name</label>
-              <input type="text" className="form-control" value={user.name} readOnly />
-            </div>
+            <Form.Group className="mb-3" controlId="formName">
+              <Form.Label>
+                <User size={18} className="me-2" />
+                Name
+              </Form.Label>
+              <Form.Control type="text" value={user.name} readOnly />
+            </Form.Group>
 
             {/* Email */}
-            <div className="mb-3">
-              <label className="form-label">Email</label>
-              <input type="email" className="form-control" value={user.email} readOnly />
-            </div>
+            <Form.Group className="mb-3" controlId="formEmail">
+              <Form.Label>
+                <Mail size={18} className="me-2" />
+                Email
+              </Form.Label>
+              <Form.Control type="email" value={user.email} readOnly />
+            </Form.Group>
 
             {/* Vehicle */}
-            <div className="mb-3">
-              <label className="form-label">Vehicle Registration Number</label>
-              <select
-                className="form-select"
+            <Form.Group className="mb-3" controlId="formVehicle">
+              <Form.Label>
+                <Car size={18} className="me-2" />
+                Vehicle Registration Number
+              </Form.Label>
+              <Form.Select
                 name="registrationNumber"
                 value={formData.registrationNumber}
                 onChange={handleChange}
@@ -175,18 +186,23 @@ function AppointmentForm() {
               >
                 <option value="">Select Vehicle</option>
                 {vehicles.map((vehicle) => (
-                  <option key={vehicle.vehicleId} value={vehicle.registrationNumber}>
+                  <option
+                    key={vehicle.vehicleId}
+                    value={vehicle.registrationNumber}
+                  >
                     {vehicle.registrationNumber}
                   </option>
                 ))}
-              </select>
-            </div>
+              </Form.Select>
+            </Form.Group>
 
             {/* Service */}
-            <div className="mb-3">
-              <label className="form-label">Service Needed</label>
-              <select
-                className="form-select"
+            <Form.Group className="mb-3" controlId="formService">
+              <Form.Label>
+                <Wrench size={18} className="me-2" />
+                Service Needed
+              </Form.Label>
+              <Form.Select
                 name="serviceId"
                 value={formData.serviceId}
                 onChange={handleServiceChange}
@@ -198,14 +214,16 @@ function AppointmentForm() {
                     {service.serviceName}
                   </option>
                 ))}
-              </select>
-            </div>
+              </Form.Select>
+            </Form.Group>
 
             {/* Garage */}
-            <div className="mb-3">
-              <label className="form-label">Garage</label>
-              <select
-                className="form-select"
+            <Form.Group className="mb-3" controlId="formGarage">
+              <Form.Label>
+                <Wrench size={18} className="me-2" />
+                Garage
+              </Form.Label>
+              <Form.Select
                 name="garageId"
                 value={formData.garageId}
                 onChange={handleChange}
@@ -217,46 +235,51 @@ function AppointmentForm() {
                     {garage.name}
                   </option>
                 ))}
-              </select>
-            </div>
+              </Form.Select>
+            </Form.Group>
 
             {/* Date */}
-            <div className="mb-3">
-              <label className="form-label">Date</label>
-              <input
+            <Form.Group className="mb-3" controlId="formDate">
+              <Form.Label>
+                <Calendar size={18} className="me-2" />
+                Date
+              </Form.Label>
+              <Form.Control
                 type="date"
-                className="form-control"
                 name="appointmentDate"
                 value={formData.appointmentDate}
                 onChange={handleChange}
                 required
               />
-            </div>
+            </Form.Group>
 
             {/* Time */}
-            <div className="mb-3">
-              <label className="form-label">Time</label>
-              <select
-                className="form-select"
+            <Form.Group className="mb-3" controlId="formTime">
+              <Form.Label>
+                <Clock size={18} className="me-2" />
+                Time
+              </Form.Label>
+              <Form.Select
                 name="appointmentTime"
                 value={formData.appointmentTime}
                 onChange={handleChange}
                 required
               >
                 <option value="">Select Time Slot</option>
-                {timeSlots.map((slot, index) => (
-                  <option key={index} value={slot.value}>
+                {timeSlots.map((slot, idx) => (
+                  <option key={idx} value={slot.value}>
                     {slot.label}
                   </option>
                 ))}
-              </select>
-            </div>
+              </Form.Select>
+            </Form.Group>
 
             {/* Can Wait */}
-            <div className="mb-3">
-              <label className="form-label">Can you wait if a mechanic is not immediately available?</label>
-              <select
-                className="form-select"
+            <Form.Group className="mb-4" controlId="formCanWait">
+              <Form.Label>
+                Can you wait if a mechanic is not immediately available?
+              </Form.Label>
+              <Form.Select
                 name="canWait"
                 value={formData.canWait}
                 onChange={handleChange}
@@ -265,45 +288,30 @@ function AppointmentForm() {
                 <option value="">Select Yes or No</option>
                 <option value="yes">Yes</option>
                 <option value="no">No</option>
-              </select>
-            </div>
+              </Form.Select>
+            </Form.Group>
 
-            <button type="submit" className="btn btn-primary">
+            <Button type="submit" variant="primary" className="w-100">
               Book Appointment
-            </button>
-          </form>
-        </div>
-      </div>
+            </Button>
+          </Form>
 
-      {/* Modal */}
-      {showModal && (
-        <div className="modal show d-block" tabIndex="-1">
-          <div className="modal-dialog">
-            <div className="modal-content">
-              <div className="modal-header">
-                <h5 className="modal-title">Appointment Status</h5>
-                <button
-                  type="button"
-                  className="btn-close"
-                  onClick={() => setShowModal(false)}
-                ></button>
-              </div>
-              <div className="modal-body">
-                <p>{modalMessage}</p>
-              </div>
-              <div className="modal-footer">
-                <button
-                  type="button"
-                  className="btn btn-secondary"
-                  onClick={() => setShowModal(false)}
-                >
-                  Close
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
+          {/* Modal */}
+          <Modal show={showModal} onHide={() => setShowModal(false)} centered>
+            <Modal.Header closeButton>
+              <Modal.Title>Appointment Status</Modal.Title>
+            </Modal.Header>
+            <Modal.Body>
+              <p>{modalMessage}</p>
+            </Modal.Body>
+            <Modal.Footer>
+              <Button variant="secondary" onClick={() => setShowModal(false)}>
+                Close
+              </Button>
+            </Modal.Footer>
+          </Modal>
+        </Container>
+      </div>
     </div>
   );
 }

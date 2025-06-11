@@ -19,11 +19,15 @@ function GarageDetails() {
   const user = JSON.parse(localStorage.getItem("userData"));
   const [isFavourite, setIsFavourite] = useState(isInitiallyFavourite);
 
+  // Modal states
+  const [modalVisible, setModalVisible] = useState(false);
+  const [modalMessage, setModalMessage] = useState("");
+
   const handleReviewClick = (garage_id) => {
     navigate(`/user/garage/${garage_id}/review`);
   };
 
-  const addFavourites = async  () => {
+  const addFavourites = async () => {
     try {
       const payload = {
         userId: user.userId,
@@ -36,22 +40,38 @@ function GarageDetails() {
         },
         body: JSON.stringify(payload),
       });
-      console.log(payload);
 
       if (response.ok) {
-        alert(isFavourite ? "Garage added to favourites" : "garage removed successfully");
+        const message = !isFavourite
+          ? "Garage added to favourites"
+          : "Garage removed from favourites";
+        setModalMessage(message);
+        setModalVisible(true);
+
+        // Auto close modal after 2.5 seconds
+        setTimeout(() => {
+          setModalVisible(false);
+        }, 2500);
       } else {
-        alert("Failed to add garage");
+        setModalMessage("Failed to update favourites");
+        setModalVisible(true);
+        setTimeout(() => {
+          setModalVisible(false);
+        }, 2500);
       }
 
       setIsFavourite((prev) => !prev);
     } catch (error) {
       console.log(error);
-      alert("Something went Wrong");
+      setModalMessage("Something went wrong");
+      setModalVisible(true);
+      setTimeout(() => {
+        setModalVisible(false);
+      }, 2500);
     }
   };
+
   useEffect(() => {
-    // this part fetches the details related tio garage
     fetch(`http://localhost:8080/api/user/garages/${garage_id}`)
       .then((response) => {
         if (!response.ok) {
@@ -66,7 +86,6 @@ function GarageDetails() {
         console.error("Error fetching garage:", error);
       });
 
-    // this part fetches the reviews as the page loads
     fetch(`http://localhost:8080/api/user/reviews/top/${garage_id}`)
       .then((response) => {
         if (!response.ok) throw new Error("Reviews not found");
@@ -130,15 +149,18 @@ function GarageDetails() {
 
               {/* Buttons */}
               <div className="d-flex flex-wrap gap-2 mb-3">
-                <button className="btn btn-outline-primary btn-sm"
-                onClick={() => navigate('/user/book-appointments')}>Book</button>
+                <button
+                  className="btn btn-outline-primary btn-sm"
+                  onClick={() => navigate("/user/book-appointments")}
+                >
+                  Book
+                </button>
                 <button
                   className="btn btn-outline-success btn-sm"
                   onClick={() => handleReviewClick(garage.garageId)}
                 >
                   Review
                 </button>
-                <button className="btn btn-outline-dark btn-sm">Message</button>
                 <button
                   className="btn btn-warning btn-sm text-white d-flex align-items-center gap-1"
                   onClick={addFavourites}
@@ -208,6 +230,38 @@ function GarageDetails() {
         </div>
         <ServiceCarousel />
       </div>
+
+      {/* Modal */}
+      {modalVisible && (
+        <div
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            width: "100vw",
+            height: "100vh",
+            backgroundColor: "rgba(0,0,0,0.3)",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            zIndex: 9999,
+          }}
+        >
+          <div
+            style={{
+              backgroundColor: "white",
+              padding: "20px 30px",
+              borderRadius: "8px",
+              boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
+              minWidth: "250px",
+              textAlign: "center",
+              fontWeight: "600",
+            }}
+          >
+            {modalMessage}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

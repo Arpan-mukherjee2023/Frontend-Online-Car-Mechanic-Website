@@ -1,8 +1,6 @@
-import React, { useState, useContext } from "react";
+import React, { useState } from "react";
 import { useParams } from "react-router-dom";
 import SideNavBar from "./SideNavBar";
-import {UserContext} from "../../Context/UserContext";
-
 
 function GarageReviewForm() {
   const [formData, setFormData] = useState({
@@ -12,7 +10,10 @@ function GarageReviewForm() {
     image: null,
   });
 
-  const userData = JSON.parse(localStorage.getItem('userData'));
+  const [showModal, setShowModal] = useState(false);
+  const [modalMessage, setModalMessage] = useState("");
+
+  const userData = JSON.parse(localStorage.getItem("userData"));
   const userId = userData.userId;
   const { garage_id } = useParams();
 
@@ -27,9 +28,8 @@ function GarageReviewForm() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     const { name, rating, comments, image } = formData;
- // Extract user_id from context
 
     const formDataToSend = new FormData();
     formDataToSend.append("garageId", garage_id);
@@ -37,32 +37,34 @@ function GarageReviewForm() {
     formDataToSend.append("customerName", name);
     formDataToSend.append("rating", rating);
     formDataToSend.append("comments", comments);
-    console.log(...formDataToSend.entries());
 
     if (image) {
       formDataToSend.append("image", image);
     }
 
     try {
-      // Send the review data to the backend using fetch API
-      const response = await fetch("http://localhost:8080/api/user/reviews/submit", {
-        method: "POST",
-        body: formDataToSend,
-      });
+      const response = await fetch(
+        "http://localhost:8080/api/user/reviews/submit",
+        {
+          method: "POST",
+          body: formDataToSend,
+        }
+      );
 
       if (response.ok) {
-        alert("Review submitted successfully!");
+        setModalMessage("Review submitted successfully!");
       } else {
-        alert("Failed to submit review. Please try again.");
+        setModalMessage("Failed to submit review. Please try again.");
       }
     } catch (error) {
       console.error("Error submitting review:", error);
-      alert("Error while submitting review. Please try again.");
+      setModalMessage("Error while submitting review. Please try again.");
     }
+    setShowModal(true);
+  };
 
-
-
-    alert("Review submitted!");
+  const closeModal = () => {
+    setShowModal(false);
   };
 
   return (
@@ -80,6 +82,7 @@ function GarageReviewForm() {
             Post a Garage Review
           </h2>
           <form onSubmit={handleSubmit}>
+            {/* form fields (name, rating, comments, image) */}
             <div className="mb-3">
               <label htmlFor="name" className="form-label text-white">
                 Your Name
@@ -150,6 +153,35 @@ function GarageReviewForm() {
           </form>
         </div>
       </div>
+
+      {/* Modal */}
+      {showModal && (
+        <div
+          className="modal d-flex justify-content-center align-items-center"
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            height: "100vh",
+            width: "100vw",
+            backgroundColor: "rgba(0,0,0,0.5)",
+            zIndex: 1050,
+          }}
+          onClick={closeModal}
+        >
+          <div
+            className="bg-white p-4 rounded shadow"
+            style={{ minWidth: "300px" }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h5 className="mb-3">Notification</h5>
+            <p>{modalMessage}</p>
+            <button className="btn btn-primary" onClick={closeModal}>
+              Close
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

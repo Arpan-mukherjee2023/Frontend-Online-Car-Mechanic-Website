@@ -1,55 +1,59 @@
-    // useWebSocket.js
-    import { useState, useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from "react";
+import SockJS from "sockjs-client";
+import { Client } from "@stomp/stompjs";
 
+const useWebSocket = (garageId, onMessageReceived) => {
+  const client = useRef(null);
+  const [isConnected, setIsConnected] = useState(false);
 
-    const useWebSocket = (garageId) => {
-        const [message, setMessage] = useState(null);
-        const [isConnected, setIsConnected] = useState(false);
-        const ws = useRef(null);
-        const url = new URL("ws://localhost:8080/ws");
-        console.log(url, garageId);
-        
-        useEffect(() => {
-            ws.current = new WebSocket(url.toString());
-            console.log(url)
-            ws.current.onopen = () => {
-                console.log("WebSocket connected");
-                setIsConnected(true);
-            };
-            ws.current.onmessage = (event) => {
-                console.log("Received message:", event.data);
-                try {
-                    const parsedMessage = JSON.parse(event.data); // Parse JSON string
-                    setMessage(parsedMessage);
-                } catch (error) {
-                    console.error("Error parsing JSON:", error);
-                    setMessage(null); // Or handle the error appropriately
-                }
-            };
-            ws.current.onclose = () => {
-                console.log("WebSocket disconnected");
-                setIsConnected(false);
-            };
-            ws.current.onerror = (error) => {
-                console.error("WebSocket error:", error);
-                setIsConnected(false);
-            };
-            return () => {
-                if (ws.current) {
-                    ws.current.close();
-                }
-            };
-        }, [url, garageId]);
+  useEffect(() => {
+    console.log(garageId);
+    client.current = new Client({
+      brokerURL: "ws://localhost:8080/ws",
+      reconnectDelay: 5000, // retry on disconnect
+      debug: (str) => console.log("[STOMP]", str),
 
-        const sendMessage = (message) => {
-            if (isConnected && ws.current) {
-                ws.current.send(message);
-            } else {
-                console.log("WebSocket not connected, message not sent");
-            }
-        };
-        return { message, isConnected, sendMessage };
+      heartbeatIncoming: 10000, // accept heartbeats every 10s
+      heartbeatOutgoing: 10000,
+
+      onConnect: () => {
+        console.log("✅ Connected to WebSocket");
+        setIsConnected(true);
+
+        client.current.subscribe(`/garage/${garageId}`, (message) => {
+          const order = JSON.parse(message.body);
+          onMessageReceived(order);
+        });
+      },
+
+      onDisconnect: () => {
+        console.log("❌ Disconnected from WebSocket");
+        setIsConnected(false);
+      },
+
+      onStompError: (frame) => {
+        console.error("💥 STOMP error:", frame.headers["message"]);
+        console.error("Details:", frame.body);
+        setIsConnected(false);
+      },
+
+      onWebSocketError: (error) => {
+        console.error("🌐 WebSocket error:", error);
+        setIsConnected(false);
+      },
+    });
+
+    client.current.activate();
+
+    return () => {
+      if (client.current) {
+        client.current.deactivate();
+        setIsConnected(false);
+      }
     };
+  }, [garageId]);
 
-    export default useWebSocket;
-    
+  return isConnected;
+};
+
+export default useWebSocket;

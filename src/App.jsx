@@ -57,7 +57,7 @@ function AppWrapper() {
     "/garage/appointment",
     "/garage/product",
     "/garage/settings",
-    "/garage/order",
+    "/garage/order"
   ];
 
   const shouldUseLayout = !noLayoutRoutes.some((route) =>
